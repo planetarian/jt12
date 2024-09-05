@@ -30,7 +30,7 @@ module jt12_sh_rst #(parameter width=5, stages=32, rstval=1'b0 )
 );
 
 reg [stages-1:0] bits[width-1:0];
-wire [width-1:0] din_mx = rst ? {width{rstval[0]}} : din;
+wire [width-1:0] din_mx = rst ? {width{rstval}} : din;
 
 genvar i;
 generate
