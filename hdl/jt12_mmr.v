@@ -23,12 +23,12 @@ module jt12_mmr(
     input           rst,
     input           clk,
     input           cen /* synthesis direct_enable */,
-    output          clk_en,
-    output          clk_en_2,
-    output          clk_en_ssg,
-    output          clk_en_666,
-    output          clk_en_111,
-    output          clk_en_55,
+    input          clk_en,
+    input          clk_en_2,
+    input          clk_en_ssg,
+    input          clk_en_666,
+    input          clk_en_111,
+    input          clk_en_55,
     input   [7:0]   din,
     input           write,
     input   [1:0]   addr,
@@ -50,8 +50,7 @@ module jt12_mmr(
     output  reg         clr_flag_B,
     output  reg         fast_timers,
     input               flag_A,
-    input               overflow_A, 
-    output  reg [1:0]   div_setting,
+    input               overflow_A,
     // PCM
     output  reg [8:0]   pcm,
     output  reg         pcm_en,
@@ -127,8 +126,10 @@ module jt12_mmr(
     input   [7:0]   debug_bus
 );
 
-parameter use_ssg=0, num_ch=6, use_pcm=1, use_adpcm=0, mask_div=1;
+parameter use_ssg=0, num_ch=6, use_pcm=1, use_adpcm=0/*, mask_div=1*/;
 
+// extracted for external use
+/*
 jt12_div #(.use_ssg(use_ssg)) u_div (
     .rst            ( rst             ),
     .clk            ( clk             ),
@@ -141,6 +142,7 @@ jt12_div #(.use_ssg(use_ssg)) u_div (
     .clk_en_111     ( clk_en_111      ),
     .clk_en_55      ( clk_en_55       )
 );
+*/
 
 reg [7:0]   selected_register;
 
@@ -210,7 +212,7 @@ wire [2:0] ch_sel = {part, selected_register[1:0]};
 always @(posedge clk) begin : memory_mapped_registers
     if( rst ) begin
         selected_register   <= 0;
-        div_setting         <= 2'b10; // FM=1/6, SSG=1/4
+        //div_setting         <= 2'b10; // FM=1/6, SSG=1/4
         up_ch               <= 0;
         up_op               <= 0;
         up_keyon            <= 0;
@@ -271,7 +273,9 @@ always @(posedge clk) begin : memory_mapped_registers
         if( write ) begin
             if( !addr[0] ) begin
                 selected_register <= din;  
-                part <= addr[1];        
+                part <= addr[1];
+                // extracted for external use
+                /*
                 if (!mask_div)
                 case(din)
                     // clock divider: should work only for ym2203
@@ -282,6 +286,7 @@ always @(posedge clk) begin : memory_mapped_registers
                     REG_CLK_N2: div_setting    <= 2'b0; // 2F
                     default:;
                 endcase
+                */
             end else begin
                 // Global registers
                 ch_din <= din;

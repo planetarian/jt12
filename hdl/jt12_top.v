@@ -28,6 +28,12 @@ module jt12_top (
     input           rst,        // rst should be at least 6 clk&cen cycles long
     input           clk,        // CPU clock
     (* direct_enable *) input cen,        // optional clock enable, if not needed leave as 1'b1
+    input          clk_en,
+    input          clk_en_2,
+    input          clk_en_ssg,
+    input          clk_en_666,
+    input          clk_en_111,
+    input          clk_en_55,
     input   [7:0]   din,
     input   [1:0]   addr,
     input           cs_n,
@@ -83,7 +89,7 @@ parameter mask_div=1;
 wire flag_A, flag_B, busy;
 
 wire write = !cs_n && !wr_n;
-wire clk_en, clk_en_ssg;
+//wire clk_en, clk_en_ssg;
 
 // Timers
 wire    [9:0]   value_A;
@@ -170,11 +176,11 @@ wire [ 5:0] adpcma_flags;  // ADPMC-A read over flags
 wire        adpcmb_flag;
 wire [ 6:0] flag_ctl;
 wire [ 6:0] flag_mask;
-wire [ 1:0] div_setting;
+//wire [ 1:0] div_setting;
 
-wire clk_en_2, clk_en_666, clk_en_111, clk_en_55;
+//wire clk_en_2, clk_en_666, clk_en_111, clk_en_55;
 
-assign debug_view = { 4'd0, flag_B, flag_A, div_setting };
+assign debug_view = { 4'd0, flag_B, flag_A, 2'b00 /*div_setting*/ };
 
 generate
 if( use_adpcm==1 ) begin: gen_adpcm
@@ -296,7 +302,7 @@ jt12_dout #(.use_ssg(use_ssg),.use_adpcm(use_adpcm)) u_dout(
     .dout           ( dout          )
 );
 
-jt12_mmr #(.use_ssg(use_ssg),.num_ch(num_ch),.use_pcm(use_pcm), .use_adpcm(use_adpcm), .mask_div(mask_div))
+jt12_mmr #(.use_ssg(use_ssg),.num_ch(num_ch),.use_pcm(use_pcm), .use_adpcm(use_adpcm)/*, .mask_div(mask_div)*/)
     u_mmr(
     .rst        ( rst       ),
     .clk        ( clk       ),
@@ -400,8 +406,8 @@ jt12_mmr #(.use_ssg(use_ssg),.num_ch(num_ch),.use_pcm(use_pcm), .use_adpcm(use_a
     .psg_addr   ( psg_addr  ),
     .psg_data   ( psg_data  ),
     .psg_wr_n   ( psg_wr_n  ),
-    .debug_bus  ( debug_bus ),
-    .div_setting(div_setting)
+    .debug_bus  ( debug_bus )/*,
+    .div_setting(div_setting)*/
 );
 
 // YM2203 seems to use a fixed cen/3 clock for the timers, regardless
